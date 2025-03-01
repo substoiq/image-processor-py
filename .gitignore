@@ -1,0 +1,5 @@
+data/input/*.*
+data/output/*.*
+image-processor-main-explain.md
+docker-cleanup.sh
+setup-local.sh

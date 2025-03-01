@@ -1,0 +1,95 @@
+---
+# ConfigMap for image processor settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: image-processor-config
+data:
+  settings.yaml: |
+    # Image Processing Configuration
+    image:
+      format: "jpg"
+      width: 800
+      height: 600
+      quality: 85
+---
+# PVC for input directory
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-input-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs-client # Adjust to your cluster's storage class
+---
+# PVC for output directory
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-output-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs-client # Adjust to your cluster's storage class
+---
+# Deployment for image processor
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-processor
+  labels:
+    app: image-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-processor
+  template:
+    metadata:
+      labels:
+        app: image-processor
+    spec:
+      containers:
+      - name: image-processor
+        image: image-processor:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        volumeMounts:
+        - name: input-volume
+          mountPath: /data/input
+        - name: output-volume
+          mountPath: /data/output
+        - name: config-volume
+          mountPath: /app/config
+        env:
+        - name: INPUT_DIR
+          value: "/data/input"
+        - name: OUTPUT_DIR
+          value: "/data/output"
+        - name: CONFIG_FILE
+          value: "/app/config/settings.yaml"
+        - name: SLEEP_INTERVAL
+          value: "10"
+      volumes:
+      - name: input-volume
+        persistentVolumeClaim:
+          claimName: image-input-pvc
+      - name: output-volume
+        persistentVolumeClaim:
+          claimName: image-output-pvc
+      - name: config-volume
+        configMap:
+          name: image-processor-config

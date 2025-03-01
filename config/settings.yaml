@@ -1,0 +1,6 @@
+# Image Processing Configuration
+image:
+  format: "jpg"
+  width: 800
+  height: 600
+  quality: 85
