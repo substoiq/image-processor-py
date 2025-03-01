@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-processor
+  labels:
+    app: image-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-processor
+  template:
+    metadata:
+      labels:
+        app: image-processor
+    spec:
+      containers:
+      - name: image-processor
+        image: image-processor:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        volumeMounts:
+        - name: input-volume
+          mountPath: /data/input
+        - name: output-volume
+          mountPath: /data/output
+        - name: config-volume
+          mountPath: /app/config
+        env:
+        - name: INPUT_DIR
+          value: "/data/input"
+        - name: OUTPUT_DIR
+          value: "/data/output"
+        - name: CONFIG_FILE
+          value: "/app/config/settings.yaml"
+        - name: SLEEP_INTERVAL
+          value: "10"
+      volumes:
+      - name: input-volume
+        persistentVolumeClaim:
+          claimName: image-input-pvc
+      - name: output-volume
+        persistentVolumeClaim:
+          claimName: image-output-pvc
+      - name: config-volume
+        configMap:
+          name: image-processor-config

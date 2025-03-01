@@ -17,8 +17,8 @@ A containerized utility that monitors directories for images, processes them acc
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/image-processor.git
-cd image-processor
+git clone https://vortex-ict/yourusername/image-processor-py.git
+cd image-processor-py
 
 # Start the container
 docker-compose up -d

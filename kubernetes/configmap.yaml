@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: image-processor-config
+data:
+  settings.yaml: |
+    # Image Processing Configuration
+    image:
+      format: "jpg"
+      width: 800
+      height: 600
+      quality: 85
